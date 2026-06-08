@@ -1,0 +1,16 @@
+﻿@model MyApp1.Models.Items;
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h3>Delete an item</h3>
+
+<p>Name: @Model.Name</p>
+<p>Price: @Model.Price</p>
+
+<form asp-action="Delete" method="post">
+    <!-- Campo nascosto che invia l'Id dell'item al controller senza mostrarlo nella pagina. -->
+    <input type="hidden" asp-for="Id"/>
+    <input type="submit" class="btn btn-danger" value="Delete" />
+</form>
