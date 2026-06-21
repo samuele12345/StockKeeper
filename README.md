@@ -1,34 +1,99 @@
-# StockKeeper
+# StockPilot
 
-StockKeeper is a .NET 9 web application for managing warehouse products in a simple and organized way.
+A simple warehouse management app built with ASP.NET Core MVC and .NET 9.
 
-## Overview
+## What is this?
 
-The application helps users create, view, edit, and delete items stored in inventory. It is designed for basic stock management scenarios where tracking product information quickly is important.
+StockPilot helps you keep track of your inventory items. You can add products, assign them categories, and the system automatically generates serial numbers for each item. It's straightforward and gets the job done.
 
-## Features
+## What you can do
 
-- View the list of products in stock
-- Add new items to the inventory
-- Edit existing products
-- Delete products from the system
-- Generate and associate serial number data with items
+- Add, edit, and delete products
+- Organize items by category
+- Automatic serial number generation (takes the first 3 letters of the product name + a random number)
+- View all your inventory with associated serial numbers and categories
+- Responsive interface that works on desktop and mobile
 
-## Tech Stack
+## Built with
 
-- ASP.NET Core
-- .NET 9
-- Entity Framework Core
-- SQL Server
-- Bootstrap
+- ASP.NET Core MVC (.NET 9)
+- Entity Framework Core for database stuff
+- SQL Server LocalDB (for development)
+- Bootstrap for styling
 
-## Getting Started
+## Database structure
 
-1. Open the project in Visual Studio.
-2. Restore NuGet packages if needed.
-3. Configure the connection string in `appsettings.json`.
-4. Run the application.
+The app uses four main tables:
 
-## Notes
+- **Items**: Your products (name, price, category, serial number reference)
+- **SerialNumber**: Unique IDs for each item
+- **Category**: Product categories
+- **Persone**: User data
 
-The project is currently being renamed to **StockKeeper**.
+Items are linked to serial numbers (one-to-one) and categories (many-to-one).
+
+## How to run it
+
+1. Clone this repo
+2. Open `MyApp1.slnx` in Visual Studio
+3. The database connection is already set up for LocalDB in `appsettings.Development.json`
+4. Run migrations to create the database:
+   ```
+   Update-Database
+   ```
+   (in Package Manager Console)
+5. Hit F5 to run
+
+That's it. The app will create the database automatically.
+
+## Project structure
+
+```
+StockKeeper/
+├── MyApp1/
+│   ├── Controllers/     - MVC controllers
+│   ├── Models/          - Data models (Items, Category, etc.)
+│   ├── Views/           - Razor views
+│   ├── Data/            - Database context
+│   ├── Migrations/      - EF migrations
+│   └── wwwroot/         - CSS, JS, images
+└── README.md
+```
+
+## Technical notes
+
+**Serial number generation**: When you create a new item, the code takes the first 3 characters of the name and adds a random 2-digit number. For example, "Keyboard" becomes "KEY42".
+
+**Database queries**: The app uses eager loading with `.Include()` to avoid the N+1 query problem. This means all related data (serial numbers, categories) is loaded in a single database call instead of making separate queries for each item.
+
+**Security**: Controllers use the `[Bind]` attribute to prevent over-posting attacks. This limits which properties can be set from form data.
+
+## Configuration
+
+For local development, the app uses LocalDB:
+```json
+"ConnectionStrings": {
+  "DefaultConnectionString": "Server=(localdb)\\mssqllocaldb;Database=DBProva;..."
+}
+```
+
+For production, just update the connection string in `appsettings.json` to point to your SQL Server instance.
+
+## Things I might add later
+
+- User login and permissions
+- Search and filter options
+- Export to Excel/PDF
+- A dashboard with some stats
+- Maybe barcode support
+
+## About
+
+Made by Samuele. This started as a learning project and evolved into something actually useful.
+
+The project folder is still called "StockKeeper" and internally uses "MyApp1" in some places because I renamed it along the way. Works fine though.
+
+## License
+
+No specific license yet. If you want to use this, just ask.
+
