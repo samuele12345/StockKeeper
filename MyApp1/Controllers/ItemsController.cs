@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -19,37 +19,21 @@ namespace MyApp1.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Carica tutti gli item con caricamento anticipato di SerNumber e Category per evitare N+1 queries
+            // Utilizzare Include corrisponde all'utilizzo del join
             var item = await _context.Item.Include(s => s.SerNumber).Include(c => c.Category).ToListAsync();
             return View(item);
         }
 
-        // metodo get
         public IActionResult Create()
         {
-            // Prepara la lista delle categorie da mostrare nella select della view.
-            // ViewBag.Category sarà usato nella view con asp-items.
-            // _context.Categories legge le categorie dal database.
-            // Qui viene creata una lista adatta a una <select> HTML. I parametri sono:
-            /*  _context.Categories → i dati presi dal database
-                "Id" → il valore di ogni option
-                "Name" → il testo mostrato all’utente
-
-            la SelectList rappresenta una select così:
-            <option value="1">Electronics</option>
-            <option value="2">Office</option>
-            */
+            // Crea una SelectList per il dropdown delle categorie (Id = valore, Name = testo visualizzato)
             ViewBag.Category = new SelectList(_context.Categories, "Id", "Name");
-            // Nella view Create.cshtml, asp-items="ViewBag.Category" userà questa lista
-            // per generare automaticamente le option della select.
-            //Questa riga dice ad ASP.NET MVC di:
-            /*  cercare la view associata all’action corrente
-                nel tuo caso, Views / Items / Create.cshtml
-                eseguire la view e restituire HTML al browser
-            */
             return View();
         }
 
         [HttpPost]
+        // Bind limita il model binding solo alle propriet� specificate, prevenendo over-posting
         public async Task<IActionResult> Create([Bind("Id", "Name", "Price", "CategoryId")] Items item)
         {
             bool itemExists = await _context.Item
