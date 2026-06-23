@@ -8,6 +8,18 @@ html {
   }
 }
 
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+}
+
+
+
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
   
@@ -19,8 +31,8 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
-    font-family: 'Inter', sans-serif;
+    margin-bottom: 0;
+    font-family: 'Segoe UI', 'Inter', 'Roboto', sans-serif;
     background: linear-gradient(180deg, #fafdff 0%, #f3f9ff 50%, #eef6ff 100%);
 }
 
@@ -46,8 +58,23 @@ body {
     
 }
 
-header, footer {
-    background: #7bb6f7;
+header {
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+}
+
+body{
+    position: relative;
+    padding-top: 60px;
+}
+
+header, footer:hover {
+    background: rgba(245, 245, 242, 1);
+    
 }
 
 .nav-item:hover {
