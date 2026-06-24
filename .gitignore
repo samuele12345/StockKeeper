@@ -6,3 +6,6 @@
 *.dbmdl
 *.cache
 MyApp1/appsettings.Local.json
+
+# File di appunti privati per lo sviluppo
+DEVNOTES.md

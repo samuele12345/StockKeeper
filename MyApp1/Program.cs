@@ -20,8 +20,17 @@ builder.Services.AddDbContext<MyApp1Context>(options =>
 builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.User.RequireUniqueEmail = false;
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.SignIn.RequireConfirmedAccount = false;
 
-});
+})
+    .AddEntityFrameworkStores<MyApp1Context>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddLogging();
 
