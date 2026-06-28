@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MyApp1.Data;
 using MyApp1.Models;
+using System.Security.Claims;
 
 namespace MyApp1.Controllers
 {
@@ -19,9 +20,14 @@ namespace MyApp1.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             // Carica tutti gli item con caricamento anticipato di SerNumber e Category per evitare N+1 queries
             // Utilizzare Include corrisponde all'utilizzo del join
-            var item = await _context.Item.Include(s => s.SerNumber).Include(c => c.Category).ToListAsync();
+            var item = await _context.Item
+                .Include(s => s.SerNumber)
+                .Include(c => c.Category)
+                .Where(u => u.UserId == userId)
+                .ToListAsync();
             return View(item);
         }
 
@@ -36,8 +42,11 @@ namespace MyApp1.Controllers
         // Bind limita il model binding solo alle proprietà specificate, prevenendo over-posting
         public async Task<IActionResult> Create([Bind("Id", "Name", "Price", "CategoryId")] Items item)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            item.Name = item.Name.Trim();
             bool itemExists = await _context.Item
-            .AnyAsync(x => x.Name == item.Name && x.Price == item.Price);
+            .AnyAsync(x => x.Name == item.Name && x.Price == item.Price && x.UserId == userId);
 
             if (itemExists)
             {
@@ -48,7 +57,8 @@ namespace MyApp1.Controllers
 
             if (ModelState.IsValid)
             {
-                item.Name = item.Name.Trim();
+                item.UserId = userId;
+
                 var serNum = new SerialNumber();
                 var random = new Random();
                 int num = random.Next(10, 100);
@@ -90,7 +100,15 @@ namespace MyApp1.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var item = await _context.Item.FirstOrDefaultAsync(x => x.Id == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var item = await _context.Item.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+            if(item == null)
+            {
+                return NotFound();
+            }
+
             ViewBag.Category = new SelectList(_context.Categories, "Id", "Name", item?.CategoryId);
             return View(item);
         }
@@ -98,8 +116,22 @@ namespace MyApp1.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(int id, [Bind("Id", "Name", "Price", "CategoryId")] Items item)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var existingItem = await _context.Item
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+            if(existingItem == null)
+            {
+                return NotFound();
+            }
+
             if (ModelState.IsValid)
             {
+                item.UserId = userId;
+                item.IdSerial = existingItem.IdSerial;
+
                 _context.Update(item);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
@@ -110,14 +142,25 @@ namespace MyApp1.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var item = await _context.Item.FirstOrDefaultAsync(x => x.Id == id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var item = await _context.Item.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+            if(item == null)
+            {
+                return NotFound();
+            }
+
             return View(item);
         }
 
         [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var item = await _context.Item.FindAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var item = await _context.Item.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+         
             if(item != null)
             {
                 _context.Item.Remove(item);
