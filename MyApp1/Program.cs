@@ -19,10 +19,10 @@ builder.Services.AddDbContext<MyApp1Context>(options =>
 
 builder.Services.AddIdentity<UserM, IdentityRole>(options =>
 {
-    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireNonAlphanumeric = false; // default true
     options.Password.RequiredLength = 8;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false; // default true
+    options.Password.RequireUppercase = false; // default true
     options.User.RequireUniqueEmail = false;
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedPhoneNumber = false;
